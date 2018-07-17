@@ -1,9 +1,8 @@
 from pymongo import MongoClient
 import urllib
 
+
 # Patch for auth
-#def connect(**kwargs):
-#    return MongoClient(**kwargs)
 def connect(**kwargs):
     username = kwargs.get('username')
     qpassword = urllib.parse.quote_plus(kwargs.get('password', ''))
@@ -18,6 +17,10 @@ def connect(**kwargs):
     if dbname:
         url += dbname
     return MongoClient(url)
+
+
+class Error(Exception):  # NOQA: StandardError undefined on PY3
+    pass
 
 
 class InterfaceError(Error):
