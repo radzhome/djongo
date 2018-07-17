@@ -129,6 +129,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             'PORT': 'port',
             'USER': 'username',
             'PASSWORD': 'password',
+            'DATABASE': 'dbname',
             'AUTH_SOURCE': 'authSource',
             'AUTH_MECHANISM': 'authMechanism',
             'ENFORCE_SCHEMA': 'enforce_schema',
