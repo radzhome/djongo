@@ -1,12 +1,22 @@
 from pymongo import MongoClient
 
-
+# Patch for auth
+#def connect(**kwargs):
+#    return MongoClient(**kwargs)
 def connect(**kwargs):
-    return MongoClient(**kwargs)
-
-
-class Error(Exception):  # NOQA: StandardError undefined on PY3
-    pass
+    username = kwargs.get('username')
+    qpassword = urllib.parse.quote_plus(kwargs.get('password', ''))
+    host = kwargs.get('host')
+    port = kwargs.get('port')
+    dbname = kwargs.get('dbname')
+    if username:
+        url = "mongodb://{}:{}@{}:{}/".format(username, qpassword, host, port)
+    else:
+        url = "mongodb://{}:{}/".format(host, port)
+    
+    if dbname:
+        url += dbname
+    return MongoClient(url)
 
 
 class InterfaceError(Error):
