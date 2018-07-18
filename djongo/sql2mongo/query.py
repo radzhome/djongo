@@ -127,7 +127,7 @@ class SelectQuery(Query):
 
             elif tok.match(tokens.Keyword, 'ORDER'):
                 c = self.order = OrderConverter(self, tok_id)
-            
+
             elif tok.match(tokens.Keyword, 'OFFSET'):
                 c = self.offset = OffsetConverter(self, tok_id)
 
@@ -228,7 +228,7 @@ class SelectQuery(Query):
         if self.limit:
             self.limit.__class__ = AggLimitConverter
             pipeline.append(self.limit.to_mongo())
-        
+
         if self.offset:
             self.offset.__class__ = AggOffsetConverter
             pipeline.append(self.offset.to_mongo())
@@ -263,7 +263,7 @@ class SelectQuery(Query):
 
             if self.order:
                 kwargs.update(self.order.to_mongo())
-            
+
             if self.offset:
                 kwargs.update(self.offset.to_mongo())
 
@@ -283,6 +283,15 @@ class SelectQuery(Query):
             if isinstance(selected, SQLToken):
                 if selected.table == self.left_table:
                     try:
+                        # TODO: Path to fix string datetimes.. sorry ugly hack
+                        if (not self.connection_properties.enforce_schema and isinstance(doc[selected.column], str) and
+                                doc[selected.column].endswith('Z')):
+                            try:
+                                import dateutil.parser
+                                doc[selected.column] = dateutil.parser.parse(doc[selected.column]).replace(tzinfo=None)
+                            except Exception:
+                                pass
+
                         ret.append(doc[selected.column])
                     except KeyError:
                         if self.connection_properties.enforce_schema:
@@ -290,6 +299,16 @@ class SelectQuery(Query):
                         ret.append(None)
                 else:
                     try:
+                        # TODO: Path to fix string datetimes.. sorry ugly hack
+                        col_val = doc[selected.table][selected.column]
+                        if (not self.connection_properties.enforce_schema and isinstance(col_val, str) and
+                                col_val.endswith('Z')):
+                            try:
+                                import dateutil.parser
+                                doc[selected.table][selected.column] = dateutil.parser.parse(col_val).replace(tzinfo=None)
+                            except Exception:
+                                pass
+
                         ret.append(doc[selected.table][selected.column])
                     except KeyError:
                         if self.connection_properties.enforce_schema:
