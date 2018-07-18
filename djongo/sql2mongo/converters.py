@@ -96,7 +96,9 @@ class AggColumnSelectConverter(ColumnSelectConverter):
             project['_const'] = {'$literal': self.return_const}
 
         elif self.return_count:
-            return {'$count': '_count'}
+            # TODO: Patch for mongo 3.2
+            return {'$group': {'_id': 0, '_count': {'$sum': 1}}}
+            # return {'$count': '_count'}
 
         else:
             if self.has_func:
