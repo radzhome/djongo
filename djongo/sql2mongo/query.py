@@ -285,7 +285,7 @@ class SelectQuery(Query):
                     try:
                         # TODO: Path to fix string datetimes.. sorry ugly hack
                         if (not self.connection_properties.enforce_schema and isinstance(doc[selected.column], str) and
-                                doc[selected.column].endswith('Z')):
+                                (doc[selected.column].endswith('Z') or doc[selected.column][-3] == ':')):
                             try:
                                 import dateutil.parser
                                 doc[selected.column] = dateutil.parser.parse(doc[selected.column]).replace(tzinfo=None)
@@ -302,7 +302,7 @@ class SelectQuery(Query):
                         # TODO: Path to fix string datetimes.. sorry ugly hack
                         col_val = doc[selected.table][selected.column]
                         if (not self.connection_properties.enforce_schema and isinstance(col_val, str) and
-                                col_val.endswith('Z')):
+                                (col_val.endswith('Z') or col_val[-3] == ':')):
                             try:
                                 import dateutil.parser
                                 doc[selected.table][selected.column] = dateutil.parser.parse(col_val).replace(tzinfo=None)
