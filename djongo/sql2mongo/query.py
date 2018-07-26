@@ -284,7 +284,7 @@ class SelectQuery(Query):
                 if selected.table == self.left_table:
                     try:
                         # TODO: Path to fix string datetimes.. sorry ugly hack
-                        col_val = doc[selected.table][selected.column]
+                        col_val = doc[selected.column]
                         if (not self.connection_properties.enforce_schema and isinstance(doc[selected.column], str) and
                                 (col_val.endswith('Z') or (len(col_val) > 2 and col_val[-3] == ':'))):
                             try:
