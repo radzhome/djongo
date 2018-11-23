@@ -744,6 +744,7 @@ class Result:
             import djongo
             exe = SQLDecodeError(
                 f'FAILED SQL: {self._sql}\n' 
+                f'FAILED QUERY: {self._query}\n'
                 f'Pymongo error: {e.details}\n'
                 f'Version: {djongo.__version__}'
             )
