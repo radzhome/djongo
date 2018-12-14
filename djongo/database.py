@@ -14,12 +14,14 @@ def connect(**kwargs):
 
     # Complete conn string now
     # http://api.mongodb.com/python/current/examples/high_availability.html
+    # http://www.mongoing.com/docs/reference/connection-string.html#standard-connection-string-format
     if hosts:
         host = ','.join(["{}:{}".format(h['host'], h['port']) for h in hosts])
     else:
         host = "{}:{}".format(host, port)
+
     if username:
-        url = "mongodb://{}@{}/".format(username, qpassword, host)
+        url = "mongodb://{}:{}@{}/".format(username, qpassword, host)
     else:
         url = "mongodb://{}/".format(host)
 
