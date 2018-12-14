@@ -7,15 +7,28 @@ def connect(**kwargs):
     username = kwargs.get('username')
     qpassword = urllib.parse.quote_plus(kwargs.get('password', ''))
     host = kwargs.get('host')
+    hosts = kwargs.get('hosts')
     port = kwargs.get('port')
     dbname = kwargs.get('dbname')
-    if username:
-        url = "mongodb://{}:{}@{}:{}/".format(username, qpassword, host, port)
+    replicaset = kwargs.get('replicaset')
+
+    # Complete conn string now
+    # http://api.mongodb.com/python/current/examples/high_availability.html
+    if hosts:
+        host = ','.join(["{}:{}".format(h['host'], h['port']) for h in hosts])
     else:
-        url = "mongodb://{}:{}/".format(host, port)
-    
+        host = "{}:{}".format(host, port)
+    if username:
+        url = "mongodb://{}@{}/".format(username, qpassword, host)
+    else:
+        url = "mongodb://{}/".format(host)
+
     if dbname:
         url += dbname
+
+    if replicaset:
+        url += "?replicaSet={}".format(replicaset)
+
     return MongoClient(url)
 
 

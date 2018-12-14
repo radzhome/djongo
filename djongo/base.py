@@ -126,6 +126,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         valid_settings = {
             'NAME': 'name',
             'HOST': 'host',
+            'HOSTS': 'hosts',
             'PORT': 'port',
             'USER': 'username',
             'PASSWORD': 'password',
