@@ -247,9 +247,14 @@ class SelectQuery(Query):
 
     def _get_cursor(self):
         if self._needs_aggregation():
-            pipeline = self._make_pipeline()
-            cur = self.db_ref[self.left_table].aggregate(pipeline)
-            logger.debug(f'Aggregation query: {pipeline}')
+            if pipeline == [{'$count': '_count'}]:  # Only thing we are doing is count .. lets speed it up
+                cnt = self.db_ref[self.left_table].count()
+                cur = self.db_ref[self.left_table].aggregate([{"$addFields": {"_count": cnt}}, {"$limit": 1},
+                                                              {'$project': {'_id': 0,  '_count': 1}}])
+            else:
+                pipeline = self._make_pipeline()
+                cur = self.db_ref[self.left_table].aggregate(pipeline)
+                logger.debug(f'Aggregation query: {pipeline}')
         else:
             kwargs = {}
             if self.where:
