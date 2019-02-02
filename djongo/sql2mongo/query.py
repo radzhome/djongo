@@ -248,13 +248,16 @@ class SelectQuery(Query):
     def _get_cursor(self):
         if self._needs_aggregation():
             pipeline = self._make_pipeline()
-            if pipeline == [{'$count': '_count'}]:  # Only thing we are doing is count .. lets speed it up
-                cnt = self.db_ref[self.left_table].count()
-                cur = self.db_ref[self.left_table].aggregate([{"$addFields": {"_count": cnt}}, {"$limit": 1},
-                                                              {'$project': {'_id': 0,  '_count': 1}}])
+            logger.debug(f'Aggregation query: {pipeline}')
+            if pipeline == [{'$count': '_count'}] or \
+                    pipeline == [{'$group': {'_id': 0, '_count': {'$sum': 1}}}]:
+                # Only thing we are doing is count .. lets speed it up
+                cur = self.db_ref[self.left_table].aggregate(
+                    [{"$addFields": {"_count": self.db_ref[self.left_table].count()}},
+                     {"$limit": 1},
+                     {'$project': {'_id': 0,  '_count': 1}}])
             else:
                 cur = self.db_ref[self.left_table].aggregate(pipeline)
-                logger.debug(f'Aggregation query: {pipeline}')
         else:
             kwargs = {}
             if self.where:
@@ -271,9 +274,9 @@ class SelectQuery(Query):
 
             if self.offset:
                 kwargs.update(self.offset.to_mongo())
-
-            cur = self.db_ref[self.left_table].find(**kwargs)
+            
             logger.debug(f'Find query: {kwargs}')
+            cur = self.db_ref[self.left_table].find(**kwargs)
 
         return cur
 
