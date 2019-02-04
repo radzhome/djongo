@@ -252,10 +252,14 @@ class SelectQuery(Query):
             if pipeline == [{'$count': '_count'}] or \
                     pipeline == [{'$group': {'_id': 0, '_count': {'$sum': 1}}}]:
                 # Only thing we are doing is count .. lets speed it up
+                #cur = self.db_ref[self.left_table].aggregate(
+                #    [{"$addFields": {"_count": self.db_ref[self.left_table].count()}},
+                #     {"$limit": 1},
+                #     {'$project': {'_id': 0,  '_count': 1}}])
+                # Mongo 3.2 support
                 cur = self.db_ref[self.left_table].aggregate(
-                    [{"$addFields": {"_count": self.db_ref[self.left_table].count()}},
-                     {"$limit": 1},
-                     {'$project': {'_id': 0,  '_count': 1}}])
+                    [{"$limit": 1},
+                     {'$project': {'_id': 0, '_count': {"$literal": self.db_ref[self.left_table].count()}}}])
             else:
                 cur = self.db_ref[self.left_table].aggregate(pipeline)
         else:
