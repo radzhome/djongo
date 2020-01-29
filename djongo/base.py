@@ -138,7 +138,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             'SSL': 'ssl',
             'SSL_CERTFILE': 'ssl_certfile',
             'SSL_CA_CERTS': 'ssl_ca_certs',
-            'READ_PREFERENCE': 'read_preference'
+            'READ_PREFERENCE': 'read_preference',
+            'RETRY_WRITES': 'retryWrites',
+            'WRITE_CONCERN': 'w',
         }
         connection_params = {
             'name': 'djongo_test',
