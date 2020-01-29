@@ -10,10 +10,13 @@ def connect(**kwargs):
     hosts = kwargs.get('hosts')
     port = kwargs.get('port')
     dbname = kwargs.get('dbname')
-    replicaset = kwargs.get('replicaset')
+    replica_set = kwargs.get('replicaset')
+    retry_writes = kwargs.get('retryWrites')
+    write_concern = kwargs.get('w')
+    ssl = 'true' if kwargs.get('ssl') in [1, '1', True, 'true'] else ''
+    auth_source = kwargs.get('authSource')
 
     # Complete conn string now
-    # http://api.mongodb.com/python/current/examples/high_availability.html
     # http://www.mongoing.com/docs/reference/connection-string.html#standard-connection-string-format
     if hosts:
         host = ','.join(["{}:{}".format(h['host'], h['port']) for h in hosts])
@@ -28,9 +31,17 @@ def connect(**kwargs):
     if dbname:
         url += dbname
 
-    if replicaset:
-        url += "?replicaSet={}".format(replicaset)
-
+    # Add params that are set to url
+    params = {
+        'ssl': ssl,
+        'replicaSet': replica_set,
+        'authSource': auth_source,
+        'retryWrites': retry_writes,
+        'w': write_concern,
+    }
+    params = {key: value for key, value in params.items() if value}
+    url += '?' + parse.urlencode(params)
+    
     return MongoClient(url)
 
 
