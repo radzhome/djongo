@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import urllib
-
+from urllib import parse
 
 # Patch for auth
 def connect(**kwargs):
