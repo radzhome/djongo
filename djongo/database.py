@@ -2,7 +2,8 @@ from pymongo import MongoClient
 import urllib
 from urllib import parse
 
-# Patch for auth
+
+# Patch for auth, ssl
 def connect(**kwargs):
     username = kwargs.get('username')
     qpassword = urllib.parse.quote_plus(kwargs.get('password', ''))
@@ -13,7 +14,7 @@ def connect(**kwargs):
     replica_set = kwargs.get('replicaset')
     retry_writes = kwargs.get('retryWrites')
     write_concern = kwargs.get('w')
-    ssl = 'true' if kwargs.get('ssl') in [1, '1', True, 'true'] else ''
+    ssl_option = 'true' if kwargs.get('ssl') in [1, '1', True, 'true'] else ''
     auth_source = kwargs.get('authSource')
 
     # Complete conn string now
@@ -33,16 +34,21 @@ def connect(**kwargs):
 
     # Add params that are set to url
     params = {
-        'ssl': ssl,
+        'ssl': ssl_option,
         'replicaSet': replica_set,
         'authSource': auth_source,
         'retryWrites': retry_writes,
         'w': write_concern,
     }
-    params = {key: value for key, value in params.items() if value}
+    params = {key: value for key, value in params.items() if value is not None}
     url += '?' + parse.urlencode(params)
-    
-    return MongoClient(url)
+
+    kwargs = {}
+    if ssl_option:
+        # By default, PyMongo is configured to require a certificate from the server when TLS is enabled. This disables.
+        kwargs = {'ssl_cert_reqs': 'CERT_NONE'}
+
+    return MongoClient(url, **kwargs)
 
 
 class Error(Exception):  # NOQA: StandardError undefined on PY3
