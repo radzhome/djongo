@@ -16,7 +16,7 @@ def connect(**kwargs):
     replica_set = kwargs.get('replicaset')
     retry_writes = kwargs.get('retryWrites')
     write_concern = kwargs.get('w')
-    ssl_option = 'true' if kwargs.get('ssl') in [1, '1', True, 'true'] else ''
+    ssl_option = 'true' if kwargs.get('ssl') in [1, '1', True, 'true'] else 'false'
     auth_source = kwargs.get('authSource')
 
     # Complete conn string now
