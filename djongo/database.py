@@ -1,3 +1,5 @@
+import random
+
 from pymongo import MongoClient
 import urllib
 from urllib import parse
@@ -20,7 +22,9 @@ def connect(**kwargs):
     # Complete conn string now
     # http://www.mongoing.com/docs/reference/connection-string.html#standard-connection-string-format
     if hosts:
-        host = ','.join(["{}:{}".format(h['host'], h['port']) for h in hosts])
+        host = ["{}:{}".format(h['host'], h['port']) for h in hosts]
+        random.shuffle(host)  # Randomize hosts, will this connect to a different one?
+        host = ','.join(host)
     else:
         host = "{}:{}".format(host, port)
 
