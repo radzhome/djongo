@@ -14,9 +14,9 @@ def connect(**kwargs):
     port = kwargs.get('port')
     dbname = kwargs.get('dbname')
     replica_set = kwargs.get('replicaset')
-    retry_writes = kwargs.get('retryWrites')
-    read_preference = kwargs.get('readPreference')
-    write_concern = kwargs.get('w')
+    retry_writes = 'true' if kwargs.get('retryWrites') in [1, '1', True, 'true'] else 'false'
+    read_preference = kwargs.get('readPreference')  # primary, secondary, nearest etc..
+    write_concern = kwargs.get('w')  # 0 - n
     ssl_option = 'true' if kwargs.get('ssl') in [1, '1', True, 'true'] else 'false'
     auth_source = kwargs.get('authSource')
 
