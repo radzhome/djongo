@@ -15,6 +15,7 @@ def connect(**kwargs):
     dbname = kwargs.get('dbname')
     replica_set = kwargs.get('replicaset')
     retry_writes = kwargs.get('retryWrites')
+    read_preference = kwargs.get('readPreference')
     write_concern = kwargs.get('w')
     ssl_option = 'true' if kwargs.get('ssl') in [1, '1', True, 'true'] else 'false'
     auth_source = kwargs.get('authSource')
@@ -42,6 +43,7 @@ def connect(**kwargs):
         'replicaSet': replica_set,
         'authSource': auth_source,
         'retryWrites': retry_writes,
+        'readPreference': read_preference,
         'w': write_concern,
     }
     params = {key: value for key, value in params.items() if value is not None}
