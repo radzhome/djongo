@@ -19,7 +19,9 @@ def connect(**kwargs):
     write_concern = kwargs.get('w')  # 0 - n
     ssl_option = 'true' if kwargs.get('ssl') in [1, '1', True, 'true'] else 'false'
     auth_source = kwargs.get('authSource')
-
+    
+    # TODO: srv support
+    
     # Complete conn string now
     # http://www.mongoing.com/docs/reference/connection-string.html#standard-connection-string-format
     if hosts:
