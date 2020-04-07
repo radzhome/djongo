@@ -248,7 +248,7 @@ class SelectQuery(Query):
     def _get_cursor(self):
         if self._needs_aggregation():
             pipeline = self._make_pipeline()
-            logger.debug(f'Aggregation query: {pipeline}')
+            # logger.debug(f'Aggregation query: {pipeline}')
             if pipeline == [{'$count': '_count'}] or \
                     pipeline == [{'$group': {'_id': 0, '_count': {'$sum': 1}}}]:
                 # Only thing we are doing is count .. lets speed it up
@@ -279,7 +279,7 @@ class SelectQuery(Query):
             if self.offset:
                 kwargs.update(self.offset.to_mongo())
             
-            logger.debug(f'Find query: {kwargs}')
+            # logger.debug(f'Find query: {kwargs}')
             cur = self.db_ref[self.left_table].find(**kwargs)
 
         return cur
@@ -372,7 +372,7 @@ class UpdateQuery(Query):
 
         kwargs.update(self.set_columns.to_mongo())
         self.result = db[self.left_table].update_many(**kwargs)
-        logger.debug(f'update_many: {self.result.modified_count}, matched: {self.result.matched_count}')
+        # logger.debug(f'update_many: {self.result.modified_count}, matched: {self.result.matched_count}')
 
 
 class InsertQuery(VoidQuery):
@@ -466,7 +466,7 @@ class InsertQuery(VoidQuery):
             self._result_ref.last_row_id = auto['auto']['seq']
         else:
             self._result_ref.last_row_id = res.inserted_ids[-1]
-        logger.debug('insert ids {}'.format(res.inserted_ids))
+        # logger.debug('insert ids {}'.format(res.inserted_ids))
 
     def parse(self):
 
@@ -702,7 +702,7 @@ class DeleteQuery(Query):
             kw.update(where.to_mongo())
 
         self.result = db_con[collection].delete_many(**kw)
-        logger.debug('delete_many: {}'.format(self.result.deleted_count))
+        # logger.debug('delete_many: {}'.format(self.result.deleted_count))
 
     def count(self):
         return self.result.deleted_count
@@ -716,7 +716,7 @@ class Result:
                  connection_properties: 'base.DjongoClient',
                  sql: str,
                  params: typing.Optional[list]):
-        logger.debug('params: {}'.format(params))
+        # logger.debug('params: {}'.format(params))
 
         self._params = params
         self.db = db_connection
@@ -775,7 +775,7 @@ class Result:
         return '%({})s'.format(self._params_index_count)
 
     def parse(self):
-        logger.debug(f'\n sql_command: {self._sql}')
+        # logger.debug(f'\n sql_command: {self._sql}')
         statement = sqlparse(self._sql)
 
         if len(statement) > 1:
@@ -787,7 +787,7 @@ class Result:
         try:
             handler = self.FUNC_MAP[sm_type]
         except KeyError:
-            logger.debug('\n Not implemented {} {}'.format(sm_type, statement))
+            # logger.debug('\n Not implemented {} {}'.format(sm_type, statement))
             raise NotImplementedError(f'{sm_type} command not implemented for SQL {self._sql}')
 
         else:
@@ -841,7 +841,7 @@ class Result:
                 else:
                     return
 
-            logger.debug('Created table {}'.format(table))
+            # logger.debug('Created table {}'.format(table))
 
             tok_id, tok = sm.token_next(tok_id)
             if isinstance(tok, Parenthesis):

@@ -1,5 +1,3 @@
-import random
-
 from pymongo import MongoClient
 import urllib
 from urllib import parse
@@ -11,6 +9,7 @@ def connect(**kwargs):
     qpassword = urllib.parse.quote_plus(kwargs.get('password', ''))
     host = kwargs.get('host')
     hosts = kwargs.get('hosts')
+    host_srv = kwargs.get('host_srv')
     port = kwargs.get('port')
     dbname = kwargs.get('dbname')
     replica_set = kwargs.get('replicaset')
@@ -20,22 +19,11 @@ def connect(**kwargs):
     ssl_option = 'true' if kwargs.get('ssl') in [1, '1', True, 'true'] else 'false'
     auth_source = kwargs.get('authSource')
 
-    # Complete conn string now
-    # http://www.mongoing.com/docs/reference/connection-string.html#standard-connection-string-format
-    if hosts:
-        host = ["{}:{}".format(h['host'], h['port']) for h in hosts]
-        random.shuffle(host)  # Randomize hosts, will this connect to a different one?
-        host = ','.join(host)
-    else:
-        host = "{}:{}".format(host, port)
-
-    if username:
-        url = "mongodb://{}:{}@{}/".format(username, qpassword, host)
-    else:
-        url = "mongodb://{}/".format(host)
-
-    if dbname:
-        url += dbname
+    options = kwargs.get('options')
+    connect_timeout = int(options.get('connect_timeout') or 10) * 1000  # Convert sec to ms
+    socket_timeout = int(options.get('timeout') or 45) * 1000  # Convert sec to ms
+    server_selection_timeout = int(options.get('server_selection_timeout') or 10) * 1000  # Convert sec to ms
+    wait_queue_timeout = int(options.get('wait_queue_timeout') or 45) * 1000  # Convert sec to ms
 
     # Add params that are set to url
     params = {
@@ -45,14 +33,41 @@ def connect(**kwargs):
         'retryWrites': retry_writes,
         'readPreference': read_preference,
         'w': write_concern,
+        'connectTimeoutMS': connect_timeout,
+        'socketTimeoutMS': socket_timeout,
+        'serverSelectionTimeoutMS': server_selection_timeout,
+        'waitQueueTimeoutMS': wait_queue_timeout,
     }
+
+    # Complete conn string now
+    # http://www.mongoing.com/docs/reference/connection-string.html#standard-connection-string-format
+
+    srv_str = ''
+    if host_srv:
+        srv_str = '+srv'
+        host = host_srv
+    elif hosts:
+        host = ["{}:{}".format(h['host'], h['port']) for h in hosts]
+        host = ','.join(host)
+    else:
+        host = "{}:{}".format(host, port)
+
+    if username:
+        url = "mongodb{}://{}:{}@{}/".format(srv_str, username, qpassword, host)
+    else:
+        url = "mongodb{}://{}/".format(srv_str, host)
+
+    if dbname:
+        url += dbname
+
     params = {key: value for key, value in params.items() if value is not None}
     url += '?' + parse.urlencode(params)
 
-    kwargs = {}
+    # https://stackoverflow.com/questions/31030307/why-is-pymongo-3-giving-serverselectiontimeouterror
+    kwargs = {'connect': False}
     if ssl_option:
         # By default, PyMongo is configured to require a certificate from the server when TLS is enabled. This disables.
-        kwargs = {'ssl_cert_reqs': 'CERT_NONE'}
+        kwargs.update({'ssl_cert_reqs': 'CERT_NONE'})
 
     return MongoClient(url, **kwargs)
 

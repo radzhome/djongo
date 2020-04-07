@@ -126,6 +126,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         valid_settings = {
             'NAME': 'name',
             'HOST': 'host',
+            'HOST_SRV': 'host_srv',
             'HOSTS': 'hosts',
             'PORT': 'port',
             'USER': 'username',
@@ -141,6 +142,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             'READ_PREFERENCE': 'readPreference',
             'RETRY_WRITES': 'retryWrites',
             'WRITE_CONCERN': 'w',
+            'OPTIONS': 'options',
         }
         connection_params = {
             'name': 'djongo_test',

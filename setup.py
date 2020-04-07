@@ -94,6 +94,7 @@ setup(
         'pymongo>=3.2.0',
         'django>=2.0',
         'dataclasses>=0.1',
+        'dnspython>=1.16.0,<2.0.0'
     ],
     extras_require=dict(
         json=[
