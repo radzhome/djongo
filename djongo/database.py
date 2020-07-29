@@ -60,14 +60,16 @@ def connect(**kwargs):
     if dbname:
         url += dbname
 
+        
+    # https://stackoverflow.com/questions/31030307/why-is-pymongo-3-giving-serverselectiontimeouterror
+    if ssl_option:
+        # kwargs.update({'connect': False})
+        # By default, PyMongo is configured to require a certificate from the server when TLS is enabled. This disables.
+        params.update({'ssl_cert_reqs': 'CERT_NONE'})
+        
     params = {key: value for key, value in params.items() if value is not None}
     url += '?' + parse.urlencode(params)
 
-    # https://stackoverflow.com/questions/31030307/why-is-pymongo-3-giving-serverselectiontimeouterror
-    kwargs = {'connect': False}
-    if ssl_option:
-        # By default, PyMongo is configured to require a certificate from the server when TLS is enabled. This disables.
-        kwargs.update({'ssl_cert_reqs': 'CERT_NONE'})
 
     return MongoClient(url, **kwargs)
 
